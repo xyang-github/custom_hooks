@@ -1,10 +1,7 @@
-import { useState, useEffect } from "react";
+import useInput from "../hooks/useInput";
 import useInputStore from "../stores";
 
 function FirstName() {
-  const [isValid, setIsValid] = useState(false);
-  const [isTouched, setIsTouched] = useState(false);
-
   const firstNameValue = useInputStore((state) => state.firstNameValue);
   const firstNameError = useInputStore((state) => state.firstNameError);
   const { setFirstNameValue, setFirstNameError } = useInputStore(
@@ -13,31 +10,11 @@ function FirstName() {
 
   const inputClass = firstNameError ? "input is-danger" : "input";
 
-  function handleChange(event) {
-    const value = event.target.value.trim();
-    setFirstNameValue(value);
-
-    if (value === "") {
-      setIsValid(false);
-      return;
-    }
-
-    setIsValid(true);
-  }
-
-  function handleBlur(event) {
-    setIsTouched(true);
-  }
-
-  useEffect(() => {
-    if (isValid && isTouched) {
-      setFirstNameError(false);
-    }
-
-    if (!isValid && isTouched) {
-      setFirstNameError(true);
-    }
-  }, [isValid, isTouched]);
+  const { handleChange, handleBlur } = useInput(
+    setFirstNameValue,
+    setFirstNameError,
+    (value) => value !== ""
+  );
 
   return (
     <>
@@ -52,7 +29,9 @@ function FirstName() {
             onBlur={handleBlur}
           />
         </div>
-        <p className="help">Help text</p>
+        {firstNameError && (
+          <p className="help has-text-danger">First name be blank.</p>
+        )}
       </div>
     </>
   );
